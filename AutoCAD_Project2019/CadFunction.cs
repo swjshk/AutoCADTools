@@ -31,24 +31,10 @@ namespace AutoCAD_Project2019
 
         [CommandMethod("Opendrawing", CommandFlags.Session) ]
         public void OpenDrawing()
-        {
-            var filePath = string.Empty;
-            using (OpenFileDialog openfiledialog1 = new OpenFileDialog())
-            {
-                openfiledialog1.InitialDirectory = "C:\\FO\\";
-                openfiledialog1.Filter = "dwg files(*.dwg)|*.dwg";
-                if (openfiledialog1.ShowDialog() == DialogResult.OK)
-                {
-                    filePath = openfiledialog1.FileName;
-                }
-
-            }
-            DocumentCollection acDocMgr = AcAp.DocumentManager;
-            acDocMgr.Open(filePath, false);
-            var docName = acDocMgr.MdiActiveDocument.Name;
-            //acDocMgr.Open(filePath, false);
-            acDocMgr.Add("drawing1.dwg");
-
+        {  
+            //acDocMgr.Add("drawing1.dwg");
+            Drawing wDrawing = new Drawing();
+            wDrawing.GetBlockRefList();           
         }
     }
 }
