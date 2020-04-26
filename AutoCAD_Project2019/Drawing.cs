@@ -51,18 +51,18 @@ namespace AutoCAD_Project2019
             
             return filePath;
         }
-        public void GetBlockRefList()
+        public List<ObjectId> GetBlockRefList()
         {
             var doc = AcAp.DocumentManager.MdiActiveDocument;
+
+            List<ObjectId> blockRefList = new List<ObjectId>();
+
             using (Transaction tr = doc.Database.TransactionManager.StartTransaction())
             {
                 var db = doc.Database;
-                var bt = 
-                    tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
-                var modelspace = bt[BlockTableRecord.ModelSpace].GetObject(OpenMode.ForRead) as BlockTableRecord;
-                               
-                List<ObjectId> blockRefList = new List<ObjectId>();
-
+                var bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+                var modelspace = bt[BlockTableRecord.ModelSpace].GetObject(OpenMode.ForRead) as BlockTableRecord;                             
+               
                 foreach (ObjectId blockRefId in modelspace)
                 {
                     if (blockRefId.ObjectClass.Name == "AcDbBlockReference")
@@ -72,7 +72,56 @@ namespace AutoCAD_Project2019
                 }                  
                 var count = blockRefList.Count;
             };
+            return blockRefList;
+        }
+
+        public List<PAWSBlock> GetPawsBlock()
+        {            
+            List<PAWSBlock> pawsBlockList = new List<PAWSBlock>();
+  
+            var db = AcAp.DocumentManager.MdiActiveDocument.Database;
+                   
+            using (Transaction tr=db.TransactionManager.StartTransaction())
+            {
+                var modelSpace = SymbolUtilityServices.GetBlockModelSpaceId(db).GetObject(OpenMode.ForRead) as BlockTableRecord;
+                var brClass = RXObject.GetClass(typeof(BlockReference));
+                foreach (ObjectId id in modelSpace)
+                {
+                    if (id.ObjectClass==brClass)
+                    {
+                        var br = id.GetObject(OpenMode.ForRead) as BlockReference;
+                        PAWSBlock pawsBlock = new PAWSBlock();
+                        foreach (ObjectId attId in br.AttributeCollection)
+                        {
+                           
+                            var attRef = attId.GetObject(OpenMode.ForRead) as AttributeReference;
+                            if (attRef.Tag=="DEVICE_NAME")
+                            {
+                                pawsBlock.DeviceName = attRef.TextString;
+                            }
+                            if (attRef.Tag=="DEVICE_LOCATION")
+                            {
+                                pawsBlock.DeviceLoc = attRef.TextString;
+
+                            }
+                            
+
+                        }
+                        if ((pawsBlock.DeviceLoc != null) & (pawsBlock.DeviceLoc != null))
+                        {
+                            pawsBlock.BlockName = br.Name;
+                            pawsBlockList.Add(pawsBlock);
+                        }
+                    }
+                    
+                    
+                }
+            }
+            var qty = pawsBlockList.Count;
+
+            return pawsBlockList;
 
         }
+       
     }
 }

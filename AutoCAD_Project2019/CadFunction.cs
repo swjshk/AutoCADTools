@@ -17,7 +17,7 @@ namespace AutoCAD_Project2019
 {
        public class Commands
     {
-        [CommandMethod("TEST12")]
+        [CommandMethod("TT")]
         public void test12()
         {
             var doc = AcAp.DocumentManager.MdiActiveDocument;
@@ -29,12 +29,12 @@ namespace AutoCAD_Project2019
             }
         }
 
-        [CommandMethod("Opendrawing", CommandFlags.Session) ]
+        [CommandMethod("test1", CommandFlags.Session) ]
         public void OpenDrawing()
         {  
             //acDocMgr.Add("drawing1.dwg");
             Drawing wDrawing = new Drawing();
-            wDrawing.GetBlockRefList();           
+            List<PAWSBlock> blocklist = wDrawing.GetPawsBlock();      
         }
     }
 }
