@@ -34,7 +34,9 @@ namespace AutoCAD_Project2019
         {  
             //acDocMgr.Add("drawing1.dwg");
             Drawing wDrawing = new Drawing();
-            List<PAWSBlock> blocklist = wDrawing.GetPawsBlock();      
+            List<PAWSBlock> blocklist = wDrawing.GetPawsBlock();
+            wDrawing.group();
         }
+
     }
 }

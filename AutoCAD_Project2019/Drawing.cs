@@ -122,6 +122,39 @@ namespace AutoCAD_Project2019
             return pawsBlockList;
 
         }
-       
+       public  void group()
+        {
+            var doc = AcAp.DocumentManager.MdiActiveDocument;
+            using (doc.LockDocument())
+            {
+                var db = AcAp.DocumentManager.MdiActiveDocument.Database;
+                using (Transaction tr = db.TransactionManager.StartTransaction())
+                {
+                    var gd = db.GroupDictionaryId.GetObject(OpenMode.ForRead) as DBDictionary;
+                    string a = "GROUND";
+
+                    if (gd.Contains(a))
+                    {
+                        var groupid = gd.GetAt(a);
+                        var group = groupid.GetObject(OpenMode.ForRead) as Group;
+
+                        ObjectId[] ids = group.GetAllEntityIds();
+                        foreach (ObjectId obj in ids)
+                        {
+                            var entity = obj.GetObject(OpenMode.ForWrite) as Entity;
+                            //entity.TransformBy(Matrix3d.Displacement(new Vector3d(3, 3, 3)));
+                            var newEntity=entity.Clone () as Entity;
+                            newEntity.TransformBy(Matrix3d.Displacement(new Vector3d(3, 3, 3)));
+                            var modelSpace = SymbolUtilityServices.GetBlockModelSpaceId(db).GetObject(OpenMode.ForWrite) as BlockTableRecord;
+                            modelSpace.AppendEntity(newEntity);
+                            tr.AddNewlyCreatedDBObject(newEntity, true);
+                        }
+
+                    }
+
+                    tr.Commit();
+                }
+            }
+        }
     }
 }
