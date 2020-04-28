@@ -8,10 +8,12 @@ namespace AutoCAD_Project2019
 {
     public class PAWSBlock
     {
-        public string DeviceName;
-        public string DeviceLoc;
-        public string BlockName;
-        public string PinNumber;
+       
+        public string DeviceName { get; set; }
+        public string BlockName { get; set; }
+        public string PinNumber { get; set; }
+        public string DeviceLoc { get; set; }
+        
 
     }
 }

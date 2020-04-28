@@ -75,7 +75,7 @@ namespace AutoCAD_Project2019
             return blockRefList;
         }
 
-        public List<PAWSBlock> GetPawsBlock()
+        public List<PAWSBlock> GetPawsBlock()//given a W drawing; reture list of device
         {            
             List<PAWSBlock> pawsBlockList = new List<PAWSBlock>();
   
@@ -87,7 +87,7 @@ namespace AutoCAD_Project2019
                 var brClass = RXObject.GetClass(typeof(BlockReference));
                 foreach (ObjectId id in modelSpace)
                 {
-                    if (id.ObjectClass==brClass)
+                    if (id.ObjectClass== brClass)
                     {
                         var br = id.GetObject(OpenMode.ForRead) as BlockReference;
                         PAWSBlock pawsBlock = new PAWSBlock();
@@ -106,7 +106,7 @@ namespace AutoCAD_Project2019
                             }
                             
 
-                        }
+                        }   
                         if ((pawsBlock.DeviceLoc != null) & (pawsBlock.DeviceLoc != null))
                         {
                             pawsBlock.BlockName = br.Name;
@@ -122,12 +122,14 @@ namespace AutoCAD_Project2019
             return pawsBlockList;
 
         }
-       public  void group()
-        {
+       public  void group() //given a group name and start point; pass next start point
+        {   
+            //
             var doc = AcAp.DocumentManager.MdiActiveDocument;
             using (doc.LockDocument())
             {
                 var db = AcAp.DocumentManager.MdiActiveDocument.Database;
+                
                 using (Transaction tr = db.TransactionManager.StartTransaction())
                 {
                     var gd = db.GroupDictionaryId.GetObject(OpenMode.ForRead) as DBDictionary;
@@ -139,11 +141,42 @@ namespace AutoCAD_Project2019
                         var group = groupid.GetObject(OpenMode.ForRead) as Group;
 
                         ObjectId[] ids = group.GetAllEntityIds();
+                        
+                        //loop find points and calculate current insert point and next insert point
+                        //start point (0,0)
+
+
+                        //loop to clone entity to new location and update Device Name
                         foreach (ObjectId obj in ids)
                         {
                             var entity = obj.GetObject(OpenMode.ForWrite) as Entity;
-                            //entity.TransformBy(Matrix3d.Displacement(new Vector3d(3, 3, 3)));
-                            var newEntity=entity.Clone () as Entity;
+
+                            var newEntity =entity.Clone () as Entity;
+                            if (newEntity.Color.ColorNameForDisplay=="red")
+                            {
+                                if (newEntity is DBPoint)
+                                {
+                                    var point1 = newEntity as DBPoint;
+                                    
+                                }
+                            }
+                                   
+                            if (newEntity is BlockReference)
+                            {   
+                                var br = newEntity as BlockReference;
+                                if (br.AttributeCollection.Count!=0)
+                                {
+                                    foreach ( AttributeReference attr in br.AttributeCollection)
+                                    {   
+                                        
+                                        if (attr.Tag=="DEVICE_NAME")
+                                        {
+                                            attr.TextString = "New Name";
+                                        }
+                                    }
+                                }
+                            }
+                           
                             newEntity.TransformBy(Matrix3d.Displacement(new Vector3d(3, 3, 3)));
                             var modelSpace = SymbolUtilityServices.GetBlockModelSpaceId(db).GetObject(OpenMode.ForWrite) as BlockTableRecord;
                             modelSpace.AppendEntity(newEntity);
