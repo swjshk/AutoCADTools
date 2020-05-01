@@ -139,11 +139,48 @@ namespace AutoCAD_Project2019
                     {
                         var groupid = gd.GetAt(a);
                         var group = groupid.GetObject(OpenMode.ForRead) as Group;
-
+                        var insertPoint = new Point3d(0, 0,0);
+                        var moveVector = new Vector3d(1, 1, 1);
+                        var startPoint = new DBPoint();
+                        var endPoint = new DBPoint();
                         ObjectId[] ids = group.GetAllEntityIds();
-                        
+
                         //loop find points and calculate current insert point and next insert point
                         //start point (0,0)
+                        //get the insert point 4/30
+                        foreach (ObjectId  obj in ids)
+                        {
+                            var entity = obj.GetObject(OpenMode.ForRead) as Entity;
+                            
+                            var point0 = new Point3d(0, 0, 0);
+                            
+                            if (entity is DBPoint)
+                            {
+                                if (entity.Color.ColorNameForDisplay == "red")
+                                {
+                                   
+                                    startPoint = entity as DBPoint;
+
+                                }
+                                if (entity.Color.ColorNameForDisplay=="blue")
+                                {
+                               
+                                    endPoint = entity as DBPoint;
+
+                                }
+                                
+                            }
+
+                            if (startPoint.Position!=point0 && endPoint.Position!=point0)
+                            {
+                                moveVector = startPoint.Position.GetVectorTo(insertPoint);
+                            }
+                            else
+                            {
+                                
+                            }
+                        }
+                        //get next insert point 5/1
 
 
                         //loop to clone entity to new location and update Device Name
@@ -152,15 +189,7 @@ namespace AutoCAD_Project2019
                             var entity = obj.GetObject(OpenMode.ForWrite) as Entity;
 
                             var newEntity =entity.Clone () as Entity;
-                            if (newEntity.Color.ColorNameForDisplay=="red")
-                            {
-                                if (newEntity is DBPoint)
-                                {
-                                    var point1 = newEntity as DBPoint;
-                                    
-                                }
-                            }
-                                   
+                                                              
                             if (newEntity is BlockReference)
                             {   
                                 var br = newEntity as BlockReference;
@@ -177,7 +206,7 @@ namespace AutoCAD_Project2019
                                 }
                             }
                            
-                            newEntity.TransformBy(Matrix3d.Displacement(new Vector3d(3, 3, 3)));
+                            newEntity.TransformBy(Matrix3d.Displacement(moveVector));
                             var modelSpace = SymbolUtilityServices.GetBlockModelSpaceId(db).GetObject(OpenMode.ForWrite) as BlockTableRecord;
                             modelSpace.AppendEntity(newEntity);
                             tr.AddNewlyCreatedDBObject(newEntity, true);
